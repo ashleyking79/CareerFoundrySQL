@@ -1,0 +1,146 @@
+release_year	
+SELECT MIN(release_year) AS min_release_year,
+	               MAX(release_year) AS max_release_year,
+	               CAST(AVG(release_year) AS DECIMAL (4)) AS avg_release_year
+	FROM film
+
+
+language_film	
+	SELECT MODE () WITHIN GROUP (ORDER BY language_id) AS mode_language_id
+	FROM film
+	
+rental_duration	SELECT MIN(rental_duration) AS min_rental_duration,
+	               MAX(rental_duration) AS max_rental_duration,
+	               CAST(AVG(rental_duration) AS DECIMAL (3,2)) AS avg_rental_duration
+	FROM film
+  
+  
+rental_rate	
+	SELECT MIN(rental_rate) AS min_rental_rate,
+	               MAX(rental_rate) AS max_rental_rate,
+	               CAST(AVG(rental_rate) AS DECIMAL (3,2)) AS avg_rental_rate
+	FROM film
+  
+  
+length	
+	SELECT MIN(length),
+	               MAX(length),
+	               CAST(AVG(length) AS DECIMAL (3)) AS avg_lenght
+	FROM film
+  
+  
+replacement_cost	
+	SELECT MIN(replacement_cost),
+	               MAX(replacement_cost),
+	               CAST(AVG(replacement_cost) AS DECIMAL (3))
+	FROM film
+  
+  
+rating	
+	SELECT MODE() WITHIN GROUP(ORDER BY rating) AS mode_rating
+	FROM film
+	
+  
+customer_id	
+	SELECT MIN (customer_id),
+	               MAX (customer_id),
+	               CAST(AVG(customer_id) AS DECIMAL (5)) avg_customer_id
+	FROM customer
+  
+  
+store_id	
+	SELECT MIN (store_id),
+	   MAX (store_id),
+	   CAST(AVG(store_id) AS DECIMAL (5)) avg_store_id
+	FROM customer
+  
+  
+first_name, last_name, email	
+	SELECT MODE() WITHIN GROUP (ORDER BY first_name) AS mode_first_name,
+	               MODE() WITHIN GROUP (ORDER BY last_name) AS mode_last_name,
+	               MODE() WITHIN GROUP (ORDER BY email) AS mode_email
+	FROM customer
+  
+  
+address_id	
+	SELECT MIN(address_id) AS min_address_id,
+	               MAX(address_id) AS max_address_id,
+	               CAST(AVG(address_id) AS DECIMAL (4)) AS avg_address_id
+	FROM customer
+  
+  
+activebool	
+	SELECT MODE () WITHIN GROUP (ORDER BY activebool) AS mode_activebool
+	FROM customer
+  
+  
+create_date	
+	SELECT MIN(create_date) AS min_create_date,
+	               MAX(create_date) AS max_create_date
+	FROM customer
+  
+  
+last_update	
+	SELECT MIN(last_update) AS min_last_update,
+	               MAX(last_update) AS max_last_update
+	FROM customer
+	
+  
+mode_active	
+SELECT MODE() WITHIN GROUP (ORDER BY active) AS mode_active
+	FROM customer
+	
+
+SELECT COUNT(A.customer_id) AS number_of_customers,
+               D.country AS country
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+GROUP BY country
+ORDER BY number_of_customers DESC
+LIMIT 10
+
+
+SELECT COUNT(A.customer_id) AS number_of_customers,
+                  C.city AS city
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON C.city_id = B.city_id
+INNER JOIN country D ON D.country_id = C.country_id
+WHERE country IN ('India', 'China', 'United States', 'Japan', 'Mexico', 'Brazil', 'Russian Federation', 'Philippines', 'Turkey', 'Indonesia')
+GROUP BY city
+ORDER BY number_of_customers DESC
+LIMIT 10
+
+
+SELECT C.city AS city,
+               A.first_name AS first_name,
+               A.last_name AS last_name,
+               D.country AS country,
+               SUM(AMOUNT) AS total_amount_paid
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+INNER JOIN payment E ON A.customer_id = E.customer_id
+WHERE city IN ('Aurora', 'Tokat', 'Tarsus', 'Atlixco', 'Emeishan', 'Pontianak', 'Shimoga', 'Aparecida de Goinia', 'Zalantun', 'Taguig')
+GROUP BY A.customer_id,
+                      A.first_name,
+                      A.last_name,
+                       country,
+                       city
+ORDER BY total_amount_paid DESC
+LIMIT 5
+
+
+/*Get customer count and total payment received against each country */
+SELECT country,
+       COUNT(A.customer_id) AS customer_count,
+       SUM(amount) AS total_payment
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_ID = D.country_ID
+INNER JOIN payment E ON a.customer_id = E.customer_id
+GROUP BY country
